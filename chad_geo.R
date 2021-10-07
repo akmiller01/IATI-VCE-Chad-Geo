@@ -88,12 +88,25 @@ setnames(
   "IATI Identifier"
 )
 
+previous_sum = sum(transactions$`Value (USD)`)
+
+
 transactions = merge(
   transactions,
   td_coords,
   by="IATI Identifier",
   all.x=T
 )
+
+# Simple divide by locations methodology
+transactions$location_count[which(is.na(transactions$location_count))] = 1
+transactions$adm1 = as.character(transactions$adm1)
+transactions$adm1[which(is.na(transactions$adm1))] = "No subnational locations"
+transactions$`Value (USD)` = transactions$`Value (USD)` / transactions$location_count
+transactions$location_count = NULL
+
+# Ensure no additional value created
+previous_sum == sum(transactions$`Value (USD)`)
 
 names(transactions) = make.names(names(transactions))
 
